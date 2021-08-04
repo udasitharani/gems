@@ -1,8 +1,7 @@
 import path from "path";
 import { ConnectionOptions } from "typeorm";
 import { __prod__ } from "./constants";
-
-console.log(process.env.DB_HOST);
+import { User } from "./entities/User";
 
 export const typeOrmConfig: ConnectionOptions = {
   type: "postgres",
@@ -12,6 +11,6 @@ export const typeOrmConfig: ConnectionOptions = {
   database: "gems",
   synchronize: !__prod__,
   logging: true,
-  entities: [],
+  entities: [User],
   migrations: [path.join(__dirname, "migrations/*")],
 };

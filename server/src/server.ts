@@ -13,6 +13,7 @@ import { createConnection } from "typeorm";
 import { HelloResolver } from "./resolvers/hello";
 import { buildSchema } from "type-graphql";
 import { typeOrmConfig } from "./typeorm.config";
+import { UserResolver } from "./resolvers/User";
 
 const PORT = process.env.PORT || 4000;
 
@@ -23,7 +24,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver],
+      resolvers: [HelloResolver, UserResolver],
       validate: false,
     }),
   });
