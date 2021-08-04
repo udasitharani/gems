@@ -73,14 +73,52 @@ export class UserResolver {
       };
     }
     return {
-      user: {
-        id: user.id,
-        email,
-        username,
-        name,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
+      user,
+    };
+  }
+
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string
+  ): Promise<UserResponse> {
+    if (usernameOrEmail.trim() === "" || password.trim() === "")
+      return { error: "Empty credentials? Really?" };
+
+    if (
+      !(validateEmail(usernameOrEmail) || validateUsername(usernameOrEmail))
+    ) {
+      return {
+        error: "Enter a valid username/email.",
+      };
+    }
+
+    const connection = getConnection();
+    const UserRepository = connection.getRepository(User);
+    let user = await UserRepository.findOne({
+      where: { email: usernameOrEmail },
+    });
+    if (!user)
+      user = await UserRepository.findOne({
+        where: { username: usernameOrEmail },
+      });
+
+    if (!user) {
+      return {
+        error: "User does not exist.",
+      };
+    }
+
+    if (!user.password) return { error: "You are logged in with Github." };
+
+    if (await bcrypt.compare(password, user.password)) {
+      return {
+        user,
+      };
+    }
+
+    return {
+      error: "Invalid credentials.",
     };
   }
 }
