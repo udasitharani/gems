@@ -50,12 +50,28 @@ export class UserResolver {
 
     const connection = getConnection();
     const UserRepository = connection.getRepository(User);
+    if (await UserRepository.findOne({ where: { email } }))
+      return {
+        error: "A user with that email already exists.",
+      };
+    if (await UserRepository.findOne({ where: { username } }))
+      return {
+        error: "Oops! That username is already taken.",
+      };
+
     const user = new User();
     user.name = name;
     user.username = username;
     user.email = email;
     user.password = hashedPassword;
-    await UserRepository.save(user);
+    try {
+      await UserRepository.save(user);
+    } catch (error) {
+      console.log(error);
+      return {
+        error: "Something went wrong :/",
+      };
+    }
     return {
       user: {
         id: user.id,
