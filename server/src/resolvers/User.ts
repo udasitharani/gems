@@ -1,6 +1,7 @@
-import { Arg, Field, Mutation, ObjectType, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, Mutation, ObjectType, Resolver } from "type-graphql";
 import { getConnection } from "typeorm";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { User } from "../entities/User";
 import {
   validateEmail,
@@ -8,7 +9,14 @@ import {
   validatePassword,
   validateUsername,
 } from "../utils/validation";
-import { hashingSalts } from "../constants";
+import {
+  hashingSalts,
+  TypeGraphqlContext,
+  __cookieOptions__,
+  __jwtCookieName__,
+  __jwtSecret__,
+  __prod__,
+} from "../constants";
 
 @ObjectType()
 class UserResponse {
@@ -22,6 +30,7 @@ class UserResponse {
 export class UserResolver {
   @Mutation(() => UserResponse)
   async create(
+    @Ctx() { res }: TypeGraphqlContext,
     @Arg("username") username: string,
     @Arg("name") name: string,
     @Arg("email") email: string,
@@ -56,7 +65,7 @@ export class UserResolver {
       };
     if (await UserRepository.findOne({ where: { username } }))
       return {
-        error: "Oops! That username is already taken.",
+        error: "Uh-oh! That username is already taken.",
       };
 
     const user = new User();
@@ -69,9 +78,17 @@ export class UserResolver {
     } catch (error) {
       console.log(error);
       return {
-        error: "Something went wrong :/",
+        error: "Oops! Something went wrong :/",
       };
     }
+
+    if (!__jwtSecret__)
+      return {
+        error: "Oops! Something went wrong.",
+      };
+
+    const token = jwt.sign({ id: user.id }, __jwtSecret__);
+    res.cookie(__jwtCookieName__, token, __cookieOptions__);
     return {
       user,
     };
@@ -80,7 +97,8 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
-    @Arg("password") password: string
+    @Arg("password") password: string,
+    @Ctx() { res }: TypeGraphqlContext
   ): Promise<UserResponse> {
     if (usernameOrEmail.trim() === "" || password.trim() === "")
       return { error: "Empty credentials? Really?" };
@@ -111,7 +129,13 @@ export class UserResolver {
 
     if (!user.password) return { error: "You are logged in with Github." };
 
+    if (!__jwtSecret__)
+      return {
+        error: "Oops! Something went wrong.",
+      };
     if (await bcrypt.compare(password, user.password)) {
+      const token = jwt.sign({ id: user.id }, __jwtSecret__);
+      res.cookie(__jwtCookieName__, token, __cookieOptions__);
       return {
         user,
       };
