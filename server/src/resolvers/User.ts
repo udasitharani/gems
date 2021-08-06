@@ -36,20 +36,20 @@ export class UserResolver {
     @Arg("email") email: string,
     @Arg("password") password: string
   ): Promise<UserResponse> {
-    if (!validateEmail)
+    if (!validateEmail(email))
       return {
         error: "Enter a valid email.",
       };
-    if (!validateUsername)
+    if (!validateUsername(username))
       return {
         error:
           "Enter a valid username. It can contain only alphabets, numbers, '_' and '.'",
       };
-    if (!validateName)
+    if (!validateName(name))
       return {
         error: "Enter a valid name. It can contain only alphabets.",
       };
-    if (!validatePassword)
+    if (!validatePassword(password))
       return {
         error:
           "Password is too weak. It should have at least one uppercase letter, one lowercase letter, one digit, one special character, and should be at least 8 characters long.",
