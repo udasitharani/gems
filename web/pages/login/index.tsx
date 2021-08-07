@@ -1,30 +1,33 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import AuthenticationLayout from "../../components/authenticationLayout";
 import InputField from "../../components/inputField";
 import StateButton from "../../components/stateButton";
-import { validateEmail, validatePassword } from "../../utils/validation";
+import { useLoginMutation, useMeQuery } from "../../generated/graphql";
+import { validateEmail } from "../../utils/validation";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showEmailError, setShowEmailError] = useState<boolean>(false);
+  const [login, { loading, data }] = useLoginMutation();
 
   return (
     <AuthenticationLayout>
       <section className="flex-1 px-8 sm:px-16 md:px-40 py-16 md:py-40">
         <header className="mb-8 text-center text-2xl text-darkBlue font-semibold opacity-0 animate-jumpUp">
-          Login to you Gems account
+          Login to your Gems account
         </header>
         <div className="w-full sm:w-3/4 md:w-2/3 mx-auto">
           <InputField
             classNames="opacity-0 animate-jumpUp"
             label="Email/Username"
-            value={email}
-            setValue={setEmail}
+            value={usernameOrEmail}
+            setValue={setUsernameOrEmail}
             showError={showEmailError}
             errorMsg="Invalid email."
             validationFn={() => {
-              if (!validateEmail(email) && email) setShowEmailError(true);
+              if (!validateEmail(usernameOrEmail) && usernameOrEmail)
+                setShowEmailError(true);
               else setShowEmailError(false);
             }}
           />
@@ -40,9 +43,21 @@ const Login: React.FC = () => {
             classNames="block ml-auto"
             label="Login"
             state={
-              !showEmailError && email && password ? "enabled" : "disabled"
+              loading
+                ? "fetching"
+                : !showEmailError && usernameOrEmail && password
+                ? "enabled"
+                : "disabled"
             }
-            onClick={() => {}}
+            onClick={async () => {
+              await login({
+                variables: {
+                  loginUsernameOrEmail: usernameOrEmail,
+                  loginPassword: password,
+                },
+              });
+              console.log(data);
+            }}
           />
         </div>
       </section>

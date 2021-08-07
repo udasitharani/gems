@@ -18,14 +18,18 @@ const StateButton: React.FC<StateButtonProps> = ({
   return (
     <div className={wrapperClassNames}>
       <button
-        className={`w-20 px-4 py-2 text-white bg-blue-600 transition-opacity duration-100 ${
+        className={`w-20 px-4 py-2 text-white bg-blue-600 transition-opacity duration-100 focus:outline-none ${
           state === "enabled"
             ? "hover:opacity-95 active:bg-blue-700 active:opacity-100"
             : "opacity-50 cursor-not-allowed"
         } rounded-md ${classNames}`}
-        onClick={() => onClick()}
+        onClick={() => (state === "enabled" ? onClick() : null)}
       >
-        {state === "fetching" ? "" : label}
+        {state === "fetching" ? (
+          <img src="/svg/spinner.svg" className="mx-auto animate-spin" />
+        ) : (
+          label
+        )}
       </button>
     </div>
   );
