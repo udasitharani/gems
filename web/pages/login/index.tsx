@@ -3,12 +3,13 @@ import AuthenticationLayout from "../../components/authenticationLayout";
 import InputField from "../../components/inputField";
 import StateButton from "../../components/stateButton";
 import { useLoginMutation } from "../../generated/graphql";
-import { validateEmail } from "../../utils/validation";
+import { validateEmail, validateUsername } from "../../utils/validation";
 
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showEmailError, setShowEmailError] = useState<boolean>(false);
+  const [showUsernameOrEmailError, setShowUsernameOrEmailError] =
+    useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
   const [login, { loading }] = useLoginMutation({
     onCompleted: (data) => {
@@ -31,12 +32,16 @@ const Login: React.FC = () => {
             label="Email/Username"
             value={usernameOrEmail}
             setValue={setUsernameOrEmail}
-            showError={showEmailError}
-            errorMsg="Invalid email."
+            showError={showUsernameOrEmailError}
+            errorMsg="Invalid username/email."
             validationFn={() => {
-              if (!validateEmail(usernameOrEmail) && usernameOrEmail)
-                setShowEmailError(true);
-              else setShowEmailError(false);
+              if (
+                !validateEmail(usernameOrEmail) &&
+                !validateUsername(usernameOrEmail) &&
+                usernameOrEmail
+              )
+                setShowUsernameOrEmailError(true);
+              else setShowUsernameOrEmailError(false);
             }}
           />
           <InputField
@@ -53,7 +58,7 @@ const Login: React.FC = () => {
             state={
               loading
                 ? "fetching"
-                : !showEmailError && usernameOrEmail && password
+                : !showUsernameOrEmailError && usernameOrEmail && password
                 ? "enabled"
                 : "disabled"
             }
