@@ -1,4 +1,13 @@
-import { Arg, Ctx, Field, Mutation, ObjectType, Resolver } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import { getConnection } from "typeorm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -17,6 +26,7 @@ import {
   __jwtSecret__,
   __prod__,
 } from "../constants";
+import { Authentication } from "../middlewares/user";
 
 @ObjectType()
 class UserResponse {
@@ -28,6 +38,20 @@ class UserResponse {
 
 @Resolver(() => User)
 export class UserResolver {
+  @Query(() => UserResponse)
+  @UseMiddleware(Authentication)
+  async me(@Ctx() { req }: TypeGraphqlContext): Promise<UserResponse> {
+    const connection = getConnection();
+    const UserRepository = connection.getRepository(User);
+    if (!req.userId) return { error: "Looks like you are not logged in." };
+    const user = await UserRepository.findOne(req.userId);
+    if (!user)
+      return {
+        error: "Authentication failed. Seems like the user does not exist.",
+      };
+    return { user };
+  }
+
   @Mutation(() => UserResponse)
   async create(
     @Ctx() { res }: TypeGraphqlContext,
