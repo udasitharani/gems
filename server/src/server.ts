@@ -11,13 +11,13 @@ dotenv.config({
 
 import "reflect-metadata";
 import express from "express";
+import cookieParser from "cookie-parser";
 import { ApolloServer } from "apollo-server-express";
 import { createConnection } from "typeorm";
 import { HelloResolver } from "./resolvers/hello";
 import { buildSchema } from "type-graphql";
 import { typeOrmConfig } from "./typeorm.config";
 import { UserResolver } from "./resolvers/User";
-import cookieParser from "cookie-parser";
 import { __cookieSecret__ } from "./constants";
 
 const PORT = process.env.PORT || 4000;
@@ -38,7 +38,10 @@ const main = async () => {
     context: ({ req, res }) => ({ req, res }),
   });
   await apolloServer.start();
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    cors: { credentials: true, origin: "http://localhost:3000" },
+  });
 
   app.listen(PORT);
 };
