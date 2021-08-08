@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import AuthenticationLayout from "../../components/authenticationLayout";
-import InputField from "../../components/inputField";
-import StateButton from "../../components/stateButton";
-import { useLoginMutation } from "../../generated/graphql";
-import { validateEmail, validateUsername } from "../../utils/validation";
+import AuthenticationLayout from "../components/authenticationLayout";
+import InputField from "../components/inputField";
+import StateButton from "../components/stateButton";
+import { useLoginMutation } from "../generated/graphql";
+import { validateEmail, validateUsername } from "../utils/validation";
 
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
