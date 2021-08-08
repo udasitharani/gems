@@ -2,14 +2,21 @@ import React, { useState } from "react";
 import AuthenticationLayout from "../../components/authenticationLayout";
 import InputField from "../../components/inputField";
 import StateButton from "../../components/stateButton";
-import { useLoginMutation, useMeQuery } from "../../generated/graphql";
+import { useLoginMutation } from "../../generated/graphql";
 import { validateEmail } from "../../utils/validation";
 
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showEmailError, setShowEmailError] = useState<boolean>(false);
-  const [login, { loading, data }] = useLoginMutation();
+  const [loginError, setLoginError] = useState<string | undefined>(undefined);
+  const [login, { loading }] = useLoginMutation({
+    onCompleted: (data) => {
+      console.log("data");
+      console.log(data);
+      setLoginError(data.login.error?.toString());
+    },
+  });
 
   return (
     <AuthenticationLayout>
@@ -18,6 +25,7 @@ const Login: React.FC = () => {
           Login to your Gems account
         </header>
         <div className="w-full sm:w-3/4 md:w-2/3 mx-auto">
+          <p className="mb-2 text-sm text-red-500">{loginError}</p>
           <InputField
             classNames="opacity-0 animate-jumpUp"
             label="Email/Username"
@@ -56,7 +64,6 @@ const Login: React.FC = () => {
                   loginPassword: password,
                 },
               });
-              console.log(data);
             }}
           />
         </div>
