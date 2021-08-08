@@ -18,7 +18,7 @@ import { HelloResolver } from "./resolvers/hello";
 import { buildSchema } from "type-graphql";
 import { typeOrmConfig } from "./typeorm.config";
 import { UserResolver } from "./resolvers/User";
-import { __cookieSecret__ } from "./constants";
+import { __cookieSecret__, __prod__ } from "./constants";
 
 const PORT = process.env.PORT || 4000;
 
@@ -40,7 +40,13 @@ const main = async () => {
   await apolloServer.start();
   apolloServer.applyMiddleware({
     app,
-    cors: { credentials: true, origin: "http://localhost:3000" },
+    cors: {
+      credentials: true,
+      origin: [
+        "http://localhost:3000",
+        !__prod__ && "https://studio.apollographql.com",
+      ],
+    },
   });
 
   app.listen(PORT);
