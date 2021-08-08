@@ -10,7 +10,7 @@ export function validateUsername(username: string): boolean {
 }
 
 export function validateName(username: string): boolean {
-  const re = /^[a-zA-Z][a-zA-Z][a-zA-Z]$/;
+  const re = /^[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/;
   return re.test(username);
 }
 
