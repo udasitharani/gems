@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Link from "next/link";
 import AuthenticationLayout from "../components/authenticationLayout";
 import InputField from "../components/inputField";
 import StateButton from "../components/stateButton";
@@ -102,6 +103,12 @@ const Login: React.FC = () => {
               });
             }}
           />
+          <p className="text-xs text-darkBlue opacity-0 animate-jumpUp">
+            Already have an account?
+            <Link href="/login">
+              <a className="ml-1 underline">Login here.</a>
+            </Link>
+          </p>
         </div>
       </section>
     </AuthenticationLayout>
