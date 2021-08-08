@@ -5,7 +5,7 @@ export function validateEmail(email: string): boolean {
 }
 
 export function validateUsername(username: string): boolean {
-  const re = /^[a-zA-Z][a-zA-Z0-9_\.]+[a-zA-Z]$/;
+  const re = /^[a-zA-Z][a-zA-Z0-9_\.]+[a-zA-Z0-9]$/;
   return re.test(username);
 }
 
