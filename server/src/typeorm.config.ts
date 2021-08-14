@@ -1,6 +1,7 @@
 import path from "path";
 import { ConnectionOptions } from "typeorm";
 import { __prod__ } from "./constants";
+import { PasswordResetToken } from "./entities/PasswordResetToken";
 import { User } from "./entities/User";
 
 export const typeOrmConfig: ConnectionOptions = {
@@ -11,6 +12,6 @@ export const typeOrmConfig: ConnectionOptions = {
   database: "gems",
   synchronize: !__prod__,
   logging: true,
-  entities: [User],
+  entities: [User, PasswordResetToken],
   migrations: [path.join(__dirname, "migrations/*")],
 };

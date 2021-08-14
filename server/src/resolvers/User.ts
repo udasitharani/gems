@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import {
   Arg,
   Ctx,
@@ -9,24 +11,24 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { getConnection } from "typeorm";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { User } from "../entities/User";
-import {
-  validateEmail,
-  validateName,
-  validatePassword,
-  validateUsername,
-} from "../utils/validation";
+import { v4 as uuid } from "uuid";
 import {
   hashingSalts,
   TypeGraphqlContext,
   __cookieOptions__,
   __jwtCookieName__,
   __jwtSecret__,
-  __prod__,
 } from "../constants";
+import { PasswordResetToken } from "../entities/PasswordResetToken";
+import { User } from "../entities/User";
 import { Authentication } from "../middlewares/user";
+import { sendResetPasswordMail } from "../utils/email";
+import {
+  validateEmail,
+  validateName,
+  validatePassword,
+  validateUsername,
+} from "../utils/validation";
 
 @ObjectType()
 class UserResponse {
@@ -168,5 +170,29 @@ export class UserResolver {
     return {
       error: "Invalid credentials.",
     };
+  }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email", { nullable: false }) email: string
+  ): Promise<boolean> {
+    if (!validateEmail(email)) return false;
+    const UserRepository = getConnection().getRepository(User);
+    const PasswordResetTokenRepository =
+      getConnection().getRepository(PasswordResetToken);
+    console.log("USERRRRR");
+    const user = await UserRepository.findOne({ where: { email } });
+    console.log("USERRRRR", user);
+    console.log("USERRRRR", user);
+    if (!user) return false;
+
+    const token = new PasswordResetToken();
+    token.token = uuid();
+    token.userId = user.id;
+    await PasswordResetTokenRepository.save(token);
+
+    sendResetPasswordMail(email, token.token, user.name.split(" ")[0]);
+
+    return true;
   }
 }
