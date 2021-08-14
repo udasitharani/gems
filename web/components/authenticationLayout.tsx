@@ -35,7 +35,7 @@ const AuthenticationLayout: React.FC = ({ children }) => {
           </p>
         </section>
       </aside>
-      {children}
+      <div className="flex-1 flex justify-center items-center">{children}</div>
     </main>
   );
 };

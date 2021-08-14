@@ -24,7 +24,7 @@ const Login: React.FC = () => {
 
   return (
     <AuthenticationLayout>
-      <section className="flex-1 px-8 sm:px-16 md:px-40 py-16 md:py-40">
+      <section className="flex-1 px-8 sm:px-16 md:px-40 py-16 md:py-0">
         <header className="mb-8 text-center text-2xl text-darkBlue font-semibold opacity-0 animate-jumpUp">
           Create Your Gems Account
         </header>
@@ -103,7 +103,7 @@ const Login: React.FC = () => {
               });
             }}
           />
-          <p className="text-xs text-darkBlue opacity-0 animate-jumpUp">
+          <p className="mt-2 text-xs text-darkBlue opacity-0 animate-jumpUp">
             Already have an account?
             <Link href="/login">
               <a className="ml-1 underline">Login here.</a>
